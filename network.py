@@ -6,10 +6,10 @@ import torch.optim as optim
 class ContemptNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(in_features=17, out_features=50)
+        self.fc1 = nn.Linear(in_features=16, out_features=50)
         self.relu1 = nn.ReLU()
         # TODO: batch norm?
-        self.dout = nn.dropout(0.2)
+        self.dout = nn.Dropout(0.2)
         self.fc2 = nn.Linear(in_features=50, out_features=100)
         self.prelu = nn.PReLU() # parametric relu - if x < 0, returns 0.25*x - o.w. return x
         self.out = nn.Linear(in_features=100, out_features=3)
