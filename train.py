@@ -10,8 +10,8 @@ from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 from numpy import vstack
 from network import ContemptNet
 import matplotlib.pyplot as plt
-#https://www.kaggle.com/sirojiddin/titanic-mlp-pytorch
 
+# https://machinelearningmastery.com/pytorch-tutorial-develop-deep-learning-models/
 
 
 def train_model(train_dl, model):
@@ -33,24 +33,15 @@ def train_model(train_dl, model):
         # print statistics
     return np.mean(training_loss)
 
-# def test_model(test_dl, model):
-#     predictions, actuals = list(), list()
-#     for i, data in enumerate(test_dl):
-#         inputs, targets = data
-#         # evaluate the model on the test set
-#         yhat = model(inputs)
-#         # retrieve numpy array
-#         yhat = yhat.detach().numpy()
-#         actual = targets.numpy()
-#         actual = actual.reshape((len(actual), 1))
-#         # round to class values
-#         yhat = yhat.reshape((len(yhat), 1))
-#         # store
-#         predictions.append(yhat)
-#         actuals.append(actual)
-#     predictions, actuals = vstack(predictions), vstack(actuals)
-#     # calculate accuracy
-#     return predictions, actuals
+# make a class prediction for one row of data
+def predict(row, model):
+    # convert row to data
+    row = Tensor([row])
+    # make prediction
+    yhat = model(row)
+    # retrieve numpy array
+    yhat = yhat.detach().numpy()
+    return np.argmax(yhat)
 
 def valid_model(valid_dl, model):
     valid_loss = []
@@ -131,24 +122,4 @@ plt.plot(valid_losses, label='validation loss')
 plt.show()
 # evaluate_model(test_dataloader, net)
 
-# https://medium.com/analytics-vidhya/classifying-iris-dataset-using-pytorch-31ccd7716803
-# def train_epoch(model, opt, criterion, batch_size=50):
-#     model.train()
-#     losses = []
-#     for beg_i in range(0, X_train.size(0), batch_size):
-#         x_batch = X_train[beg_i:beg_i + batch_size, :]
-#         y_batch = y_train[beg_i:beg_i + batch_size, :]
-#         x_batch = Variable(x_batch)
-#         y_batch = Variable(y_batch)
-
-#         opt.zero_grad()
-#         # (1) Forward
-#         y_hat = net(x_batch)
-#         # (2) Compute diff
-#         loss = criterion(y_hat, y_batch)
-#         # (3) Compute gradients
-#         loss.backward()
-#         # (4) update weights
-#         opt.step()        
-#         losses.append(loss.data.numpy())
-#     return losses
+#
