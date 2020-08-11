@@ -30,7 +30,6 @@ def train_model(train_dl, model):
         loss.backward()
         optimizer.step()
         training_loss.append(loss.item())
-        # print statistics
     return np.mean(training_loss)
 
 # make a class prediction for one row of data
@@ -74,32 +73,49 @@ def valid_model(valid_dl, model):
         valid_acc.append(acc)
 
     # f1 = f1_score(actuals, predictions)
-    # print('F1 score:' , f1)
+    f1_metric = f1_score(vstack(actuals), vstack(predictions), average = "macro")
+    print('F1 score:' , f1_metric)
     return np.mean(valid_loss), np.mean(valid_acc)
+
+def get_dataloaders(data_path, batch_size, valid_culture=None):
+    data_path = './processed_data_csv/all_videos.csv'
+    df = pd.read_csv(data_path)
+    Y = df[['emotion']].values
+    X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+    Y = LabelEncoder().fit_transform(Y)
+
+    Y_tensor = torch.tensor(Y, dtype=torch.long)
+    X_tensor = torch.tensor(X.values, dtype=torch.float32)
+    
+    dataset = TensorDataset(X_tensor, Y_tensor)
+    ### For random splitting
+    if valid_culture is None:
+        Y_tensor = torch.tensor(Y, dtype=torch.long)
+        X_tensor = torch.tensor(X.values, dtype=torch.float32)
+        
+        dataset = TensorDataset(X_tensor, Y_tensor)
+        train, valid, test = random_split(dataset, [18013, 9000, 7])
+    # else:
+    #     res_df[res_df['success'] == 0]
+    ### For cultural splitting
+    train_dataloader = DataLoader(train, shuffle=True, batch_size=batch_size)
+    valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
+    test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
+    return train_dataloader, valid_dataloader, test_dataloader
+
 
 net = ContemptNet()
 if torch.cuda.is_available():
     net.cuda()
-print(net)
+# print(net)
+batch_size = 32
+epochs = 64
 optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999))
 criterion = nn.CrossEntropyLoss()
 
 data_path = './processed_data_csv/all_videos.csv'
-df = pd.read_csv(data_path)
-Y = df[['emotion']].values
-X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
-Y = LabelEncoder().fit_transform(Y)
+train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(data_path, batch_size)
 
-Y_tensor = torch.tensor(Y, dtype=torch.long)
-# Y_tensor = Y_tensor.reshape((len(Y_tensor), 1))
-X_tensor = torch.tensor(X.values, dtype=torch.float32)
-batch_size = 32
-epochs = 64
-dataset = TensorDataset(X_tensor, Y_tensor)
-train, valid, test = random_split(dataset, [13024, 5800, 200 ])
-train_dataloader = DataLoader(train, shuffle=True, batch_size=batch_size)
-valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
-test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
 
 train_losses = []
 valid_losses = []
