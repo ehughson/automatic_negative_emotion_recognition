@@ -69,14 +69,11 @@ def main():
 
 	#create_classifier(X_train, X_valid, y_train, y_valid)
 	create_svm(X_train, X_valid, y_train, y_valid)
-	#feature_extract_chi(X2, y)
-	#feature_extract_reg(X2, y)
+	
 
 	
 
 if __name__=='__main__':
-	#train_data = sys.argv[1]
-	#test_data = sys.argv[2]
 	main()
 
 
