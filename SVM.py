@@ -46,12 +46,6 @@ def create_svm(X_train, X_valid, y_train, y_valid):
 	print(accuracy_score(y_valid, predictions))
 	return clf
 
-def create_model(X_train, y_train, X_test, y_test):
-
-	model = svm.SVC(kernel='linear') 
-	clf.fit(X_train, y_train)
-	y_pred = clf.predict(X_test)
-
 
 
 def main():
