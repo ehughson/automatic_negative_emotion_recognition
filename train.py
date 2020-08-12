@@ -80,28 +80,47 @@ def valid_model(valid_dl, model):
 def get_dataloaders(data_path, batch_size, valid_culture=None):
     data_path = './processed_data_csv/all_videos.csv'
     df = pd.read_csv(data_path)
-    Y = df[['emotion']].values
-    X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
-    Y = LabelEncoder().fit_transform(Y)
+    # Y = df[['emotion']].values
+    # X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+    # Y = LabelEncoder().fit_transform(Y)
 
-    Y_tensor = torch.tensor(Y, dtype=torch.long)
-    X_tensor = torch.tensor(X.values, dtype=torch.float32)
     
-    dataset = TensorDataset(X_tensor, Y_tensor)
     ### For random splitting
     if valid_culture is None:
+        Y = df[['emotion']].values
+        X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+        Y = LabelEncoder().fit_transform(Y)
         Y_tensor = torch.tensor(Y, dtype=torch.long)
         X_tensor = torch.tensor(X.values, dtype=torch.float32)
         
         dataset = TensorDataset(X_tensor, Y_tensor)
         train, valid, test = random_split(dataset, [18013, 9000, 7])
-    # else:
-    #     res_df[res_df['success'] == 0]
     ### For cultural splitting
+    else:
+
+        valid_df = df[df['culture'] == valid_culture]
+        train_df = df[df['culture'] != valid_culture]
+
+        train_labels = train_df[['emotion']].values
+        valid_labels = valid_df[['emotion']].values
+        train_labels = LabelEncoder().fit_transform(train_labels)
+        valid_labels = LabelEncoder().fit_transform(valid_labels)
+
+        valid_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
+        train_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
+
+        Y_tensor_train = torch.tensor(train_labels, dtype=torch.long)
+        Y_tensor_valid = torch.tensor(valid_labels, dtype=torch.long)
+
+        X_tensor_train = torch.tensor(train_df.values, dtype=torch.float32)
+        X_tensor_valid = torch.tensor(valid_df.values, dtype=torch.float32)
+        train = TensorDataset(X_tensor_train, Y_tensor_train)
+        valid = TensorDataset(X_tensor_valid, Y_tensor_valid)
+
     train_dataloader = DataLoader(train, shuffle=True, batch_size=batch_size)
     valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
-    test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
-    return train_dataloader, valid_dataloader, test_dataloader
+    # test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
+    return train_dataloader, valid_dataloader
 
 
 net = ContemptNet()
@@ -114,7 +133,7 @@ optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999))
 criterion = nn.CrossEntropyLoss()
 
 data_path = './processed_data_csv/all_videos.csv'
-train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(data_path, batch_size)
+train_dataloader, valid_dataloader = get_dataloaders(data_path, batch_size)
 
 
 train_losses = []
@@ -135,6 +154,8 @@ for epoch in range(epochs):
 
 plt.plot(train_losses, label='training loss')
 plt.plot(valid_losses, label='validation loss')
+# plt.legend(loc="lower right")
+plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
 plt.show()
 # evaluate_model(test_dataloader, net)
 
