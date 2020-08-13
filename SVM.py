@@ -46,12 +46,77 @@ def create_svm(X_train, X_valid, y_train, y_valid):
 	print(accuracy_score(y_valid, predictions))
 	return clf
 
+def separate_emotions(X):
+
+
+	print( '############# PHILIPPINES############### \n')
+	#################### PHILIPPINES ###################
+	culture_1 = X[(X['culture'] == 'Persian') | (X['culture'] == 'North America')]
+	test = X[X['culture'] == 'Philippines']
+	culture_1['culture_code'] = culture_1['culture'].astype('category').cat.codes
+	y = culture_1['emotion'].values
+	culture_1 = culture_1.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	
+	X_train, X_valid, y_train, y_valid = train_test_split(culture_1, y)
+	clf = create_svm(X_train, X_valid, y_train, y_valid)
+
+	test['culture_code'] = test['culture'].astype('category').cat.codes
+	int_test = test.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	print(len(int_test))
+	int_predict = test['emotion'].values
+	print(len(int_predict))
+	predictions = clf.predict(int_test)
+	print(accuracy_score(int_predict, predictions))
+	print('\n')
+
+
+	print( '############# NORTH AMERICA ############### \n')
+	#################### NORTH AMERICA ###################
+	culture_1 = X[(X['culture'] == 'Persian') | (X['culture'] == 'Philippines')]
+	test = X[X['culture'] == 'North America']
+	culture_1['culture_code'] = culture_1['culture'].astype('category').cat.codes
+	y = culture_1['emotion'].values
+	culture_1 = culture_1.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	
+	X_train, X_valid, y_train, y_valid = train_test_split(culture_1, y)
+	clf = create_svm(X_train, X_valid, y_train, y_valid)
+
+	test['culture_code'] = test['culture'].astype('category').cat.codes
+	int_test = test.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	print(len(int_test))
+	int_predict = test['emotion'].values
+	print(len(int_predict))
+	predictions = clf.predict(int_test)
+	print(accuracy_score(int_predict, predictions))
+	print('\n')
+	print( '############# PERSIAN ############### \n')
+	#################### NORTH AMERICA ###################
+	culture_1 = X[(X['culture'] == 'North America') | (X['culture'] == 'Philippines')]
+	test = X[X['culture'] == 'Persian']
+	culture_1['culture_code'] = culture_1['culture'].astype('category').cat.codes
+	y = culture_1['emotion'].values
+	culture_1 = culture_1.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	
+	X_train, X_valid, y_train, y_valid = train_test_split(culture_1, y)
+	clf = create_svm(X_train, X_valid, y_train, y_valid)
+
+	test['culture_code'] = test['culture'].astype('category').cat.codes
+	int_test = test.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	print(len(int_test))
+	int_predict = test['emotion'].values
+	print(len(int_predict))
+	predictions = clf.predict(int_test)
+	print(accuracy_score(int_predict, predictions))
+	print('\n')
+
+
 
 
 def main():
 	
 	columns = ['AU01_r', 'AU02_r', 'AU04_r', 'AU05_r', 'AU06_r', 'AU07_r', 'AU09_r', 'AU10_r', 'AU12_r', 'AU14_r', 'AU15_r', 'AU17_r', 'AU23_r', 'AU25_r', 'AU26_r', 'AU45_r','culture','emotion']
 	X = pd.read_csv("all_videos.csv")
+	separate_emotions(X)
 	print(X.head())
 	X['culture_code'] = X['culture'].astype('category').cat.codes
 	y = X['emotion'].values
@@ -62,13 +127,13 @@ def main():
 	
 
 	#create_classifier(X_train, X_valid, y_train, y_valid)
-	create_svm(X_train, X_valid, y_train, y_valid)
+	clf = create_svm(X_train, X_valid, y_train, y_valid)
 	
 
 	
 
 if __name__=='__main__':
+	#train_data = sys.argv[1]
+	#test_data = sys.argv[2]
 	main()
-
-
 
