@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # https://machinelearningmastery.com/pytorch-tutorial-develop-deep-learning-models/
 
-
+le = LabelEncoder()
 def train_model(train_dl, model):
     training_loss = []
     for i, data in enumerate(train_dataloader):
@@ -33,14 +33,17 @@ def train_model(train_dl, model):
     return np.mean(training_loss)
 
 # make a class prediction for one row of data
+
 def predict(row, model):
     # convert row to data
-    row = Tensor([row])
+    row = torch.tensor([row], dtype=torch.float32).cuda()
+    model.eval()
     # make prediction
     yhat = model(row)
     # retrieve numpy array
-    yhat = yhat.detach().numpy()
+    yhat = yhat.detach().cpu().numpy()
     return np.argmax(yhat)
+    
 
 def valid_model(valid_dl, model):
     valid_loss = []
@@ -77,50 +80,45 @@ def valid_model(valid_dl, model):
     print('F1 score:' , f1_metric)
     return np.mean(valid_loss), np.mean(valid_acc)
 
-def get_dataloaders(data_path, batch_size, valid_culture=None):
-    data_path = './processed_data_csv/all_videos.csv'
-    df = pd.read_csv(data_path)
-    # Y = df[['emotion']].values
-    # X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
-    # Y = LabelEncoder().fit_transform(Y)
-
-    
-    ### For random splitting
-    if valid_culture is None:
-        Y = df[['emotion']].values
-        X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
-        Y = LabelEncoder().fit_transform(Y)
-        Y_tensor = torch.tensor(Y, dtype=torch.long)
-        X_tensor = torch.tensor(X.values, dtype=torch.float32)
+def get_dataloaders(df, batch_size, valid_culture=None):
         
-        dataset = TensorDataset(X_tensor, Y_tensor)
-        train, valid, test = random_split(dataset, [18013, 9000, 7])
+    ### For random splitting
+    # if valid_culture is None:
+    Y = df[['emotion']].values
+    X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+    Y = le.fit_transform(Y)
+    Y_tensor = torch.tensor(Y, dtype=torch.long)
+    X_tensor = torch.tensor(X.values, dtype=torch.float32)
+    
+    dataset = TensorDataset(X_tensor, Y_tensor)
+    # lengths = [int(len(dataset)*0.7), len(dataset) - int(len(dataset)*0.7)]
+    # train, valid = random_split(dataset, lengths)
     ### For cultural splitting
-    else:
+    # else:
 
-        valid_df = df[df['culture'] == valid_culture]
-        train_df = df[df['culture'] != valid_culture]
+    #     valid_df = df[df['culture'] == valid_culture]
+    #     train_df = df[df['culture'] != valid_culture]
 
-        train_labels = train_df[['emotion']].values
-        valid_labels = valid_df[['emotion']].values
-        train_labels = LabelEncoder().fit_transform(train_labels)
-        valid_labels = LabelEncoder().fit_transform(valid_labels)
+    #     train_labels = train_df[['emotion']].values
+    #     valid_labels = valid_df[['emotion']].values
+    #     train_labels = le.fit_transform(train_labels)
+    #     valid_labels = le.fit_transform(valid_labels)
 
-        valid_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
-        train_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
+    #     valid_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
+    #     train_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
 
-        Y_tensor_train = torch.tensor(train_labels, dtype=torch.long)
-        Y_tensor_valid = torch.tensor(valid_labels, dtype=torch.long)
+    #     Y_tensor_train = torch.tensor(train_labels, dtype=torch.long)
+    #     Y_tensor_valid = torch.tensor(valid_labels, dtype=torch.long)
 
-        X_tensor_train = torch.tensor(train_df.values, dtype=torch.float32)
-        X_tensor_valid = torch.tensor(valid_df.values, dtype=torch.float32)
-        train = TensorDataset(X_tensor_train, Y_tensor_train)
-        valid = TensorDataset(X_tensor_valid, Y_tensor_valid)
+    #     X_tensor_train = torch.tensor(train_df.values, dtype=torch.float32)
+    #     X_tensor_valid = torch.tensor(valid_df.values, dtype=torch.float32)
+    #     train = TensorDataset(X_tensor_train, Y_tensor_train)
+    #     valid = TensorDataset(X_tensor_valid, Y_tensor_valid)
 
-    train_dataloader = DataLoader(train, shuffle=True, batch_size=batch_size)
-    valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
+    dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
+    # valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
     # test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
-    return train_dataloader, valid_dataloader
+    return dataloader
 
 
 net = ContemptNet()
@@ -128,13 +126,23 @@ if torch.cuda.is_available():
     net.cuda()
 # print(net)
 batch_size = 32
-epochs = 64
-optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999))
+epochs = 100
+# ASGD worked ok. (layers = 1, units=32, F1=0.45, acc=0.51)
+# optimizer = optim.ASGD(net.parameters(), lr=0.005)
+optimizer = optim.SGD(net.parameters(), lr=0.005)
 criterion = nn.CrossEntropyLoss()
 
 data_path = './processed_data_csv/all_videos.csv'
-train_dataloader, valid_dataloader = get_dataloaders(data_path, batch_size)
-
+df = pd.read_csv(data_path)
+valid_files = pd.Series(df['filename'].unique()).sample(frac=0.3)
+test_files = pd.Series(valid_files).sample(frac=0.15)
+test_df = df[df['filename'].isin(test_files)]
+valid_df = df[df['filename'].isin(valid_files)]
+# test_df=df.sample(n=300,random_state=200)
+df = df[~df['filename'].isin(valid_files)]
+df = df[~df['filename'].isin(test_files)]
+train_dataloader = get_dataloaders(df, batch_size)
+valid_dataloader = get_dataloaders(valid_df, batch_size)
 
 train_losses = []
 valid_losses = []
@@ -159,4 +167,19 @@ plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
 plt.show()
 # evaluate_model(test_dataloader, net)
 
-#
+Yhat = list()
+# Y = le.fit_transform(test_df['emotion'].values)
+test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+for row in test_df_copy.values:
+    p = predict(row, net)
+    # p = p.reshape((len(p), 1))
+    Yhat.append(p)
+
+# test_df['integer_emotion'] = Y
+test_df['predicted'] = le.inverse_transform(Yhat)
+print('Len test_df: ', len(test_df))
+# print('Len Y:', len(Y))
+print(test_df.sample(25))
+print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
+# actual = actual.reshape((len(actual), 1))
+# yhat = yhat.reshape((len(yhat), 1))
