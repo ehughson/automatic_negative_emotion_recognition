@@ -55,7 +55,7 @@ au_df_na = au_df_na.drop('filename', 1)
 
 gmm_na = GMM(16).fit(au_df_na)
 
-probabilities_na = gmm.predict_proba(au_df_na)
+probabilities_na = gmm_na.predict_proba(au_df_na)
 prob_df_na = pd.DataFrame(probabilities_na)
 
 
@@ -75,7 +75,7 @@ au_df_pr = au_df_pr.drop('filename', 1)
 
 gmm_pr = GMM(16).fit(au_df_pr)
 
-probabilities_pr = gmm.predict_proba(au_df_pr)
+probabilities_pr = gmm_pr.predict_proba(au_df_pr)
 prob_df_pr = pd.DataFrame(probabilities_pr)
 
 df_ph = df[df['culture'] == "Philippines"]
@@ -94,7 +94,7 @@ au_df_ph = au_df_ph.drop('filename', 1)
 
 gmm_ph = GMM(16).fit(au_df_ph)
 
-probabilities_ph = gmm.predict_proba(au_df_ph)
+probabilities_ph = gmm_ph.predict_proba(au_df_ph)
 prob_df_ph = pd.DataFrame(probabilities_ph)
 
 
@@ -127,7 +127,7 @@ for i in range(0, num_components):
     
 
     
-    if video_emotion == 'contempt' and video_culture == " North America":
+    if video_emotion == 'contempt' and video_culture == "North America":
         
         for image_file_path in contempt_images:
             image_file_name = os.path.basename(image_file_path)
