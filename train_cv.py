@@ -17,7 +17,7 @@ le = LabelEncoder()
 def train_model(train_dl, model, criterion, optimizer):
     training_loss = []
     avg_loss = 0
-    for i, data in enumerate(train_dataloader):
+    for i, data in enumerate(train_dl):
         # print()
 
         inputs, labels = data
@@ -113,26 +113,28 @@ df = pd.read_csv(data_path)
 ## TODO: before doing this part, remember to pick the 'test' sections
 kfold = KFold(5, True, 1)
 videos = df['filename'].unique()
-test_videos = pd.Series(videos).sample(frac=0.05, random_state=200)
-print(test_videos)
+test_videos = pd.Series(videos).sample(frac=0.10)
+# print(test_videos)
 # videos must be array to be subscriptable by a list
 videos = np.array(list(set(videos) - set(test_videos)))
 # Removing test videos from train dataset
+test_df = df[df['filename'].isin(test_videos)]
 df = df[~df['filename'].isin(list(test_videos))]
 splits = kfold.split(videos)
+test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
 for (i, (train, test)) in enumerate(splits):
     print('%d-th split: train: %d, test: %d' % (i+1, len(videos[train]), len(videos[test])))
     train_df = df[df['filename'].isin(videos[train])]
     valid_df = df[df['filename'].isin(videos[test])]
-    print('train length:', len(train_df))
-    print('valid length:', len(valid_df))
+    # print('train length:', len(train_df))
+    # print('valid length:', len(valid_df))
     train_dataloader = get_dataloaders(df, batch_size)
     valid_dataloader = get_dataloaders(valid_df, batch_size)
     net = ContemptNet()
     if torch.cuda.is_available():
         net.cuda()
-    optimizer = optim.Adam(net.parameters(), lr=0.005, weight_decay=1e-5)
-# optimizer = optim.SGD(net.parameters(), lr=0.005)
+    # optimizer = optim.Adam(net.parameters(), lr=0.005, weight_decay=1e-5)
+    optimizer = optim.ASGD(net.parameters(), lr=0.005)
     criterion = nn.CrossEntropyLoss()
     train_losses = []
     valid_losses = []
@@ -156,26 +158,20 @@ for (i, (train, test)) in enumerate(splits):
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.show()
 
+    ## Testing
+    Yhat = list()
+    # Y = le.fit_transform(test_df['emotion'].values)
 
+    for row in test_df_copy.values:
+        p = predict(row, net)
+        # p = p.reshape((len(p), 1))
+        Yhat.append(p)
 
-
-
-
-
-## Testing
-Yhat = list()
-# Y = le.fit_transform(test_df['emotion'].values)
-test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
-for row in test_df_copy.values:
-    p = predict(row, net)
-    # p = p.reshape((len(p), 1))
-    Yhat.append(p)
-
-# test_df['integer_emotion'] = Y
-test_df['predicted'] = le.inverse_transform(Yhat)
-print('Len test_df: ', len(test_df))
-# print('Len Y:', len(Y))
-print(test_df.sample(25))
-print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
-# actual = actual.reshape((len(actual), 1))
-# yhat = yhat.reshape((len(yhat), 1))
+    # test_df['integer_emotion'] = Y
+    test_df['predicted'] = le.inverse_transform(Yhat)
+    # print('Len test_df: ', len(test_df))
+    # print('Len Y:', len(Y))
+    # print(test_df.sample(25))
+    print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
+    # actual = actual.reshape((len(actual), 1))
+    # yhat = yhat.reshape((len(yhat), 1))

@@ -50,6 +50,7 @@ def valid_model(valid_dl, model):
     valid_acc = []
     predictions, actuals = list(), list()
     model.eval()
+    avg_loss = 0.0
     for i, data in enumerate(valid_dl):
         inputs, targets = data
         inputs = inputs.cuda()
@@ -74,11 +75,11 @@ def valid_model(valid_dl, model):
         # yhat = yhat.reshape((len(yhat), 1))
         valid_loss.append(loss.item())
         valid_acc.append(acc)
-
+        avg_loss += loss.item()/len(valid_dl)
     # f1 = f1_score(actuals, predictions)
     f1_metric = f1_score(vstack(actuals), vstack(predictions), average = "macro")
     print('F1 score:' , f1_metric)
-    return np.mean(valid_loss), np.mean(valid_acc)
+    return avg_loss, np.mean(valid_acc)
 
 def get_dataloaders(df, batch_size, valid_culture=None):
         
@@ -127,15 +128,15 @@ if torch.cuda.is_available():
 # print(net)
 batch_size = 32
 epochs = 100
-# ASGD worked ok. (layers = 1, units=32, F1=0.45, acc=0.51)
-# optimizer = optim.ASGD(net.parameters(), lr=0.005)
-optimizer = optim.SGD(net.parameters(), lr=0.005)
+# optimizer = optim.ASGD(net.parameters(), lr=0.01)
+optimizer = optim.Adam(net.parameters(), lr=0.005, weight_decay=1e-5)
+# optimizer = optim.SGD(net.parameters(), lr=0.005)
 criterion = nn.CrossEntropyLoss()
 
 data_path = './processed_data_csv/all_videos.csv'
 df = pd.read_csv(data_path)
-valid_files = pd.Series(df['filename'].unique()).sample(frac=0.3)
-test_files = pd.Series(valid_files).sample(frac=0.15)
+valid_files = pd.Series(df['filename'].unique()).sample(frac=0.3, random_state=200)
+test_files = pd.Series(valid_files).sample(frac=0.15, random_state=200)
 test_df = df[df['filename'].isin(test_files)]
 valid_df = df[df['filename'].isin(valid_files)]
 # test_df=df.sample(n=300,random_state=200)
