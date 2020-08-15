@@ -1,15 +1,14 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import pandas as pd
 import numpy as np
-from torch.utils.data import TensorDataset, DataLoader, random_split
+from torch.utils.data import TensorDataset, DataLoader
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, f1_score
 from numpy import vstack
 from network import ContemptNet
-from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 
 # https://www.kaggle.com/super13579/pytorch-nn-cyclelr-k-fold-0-897-lightgbm-0-899#Pytorch-to-implement-simple-feed-forward-NN-model-(0.89+)
@@ -73,11 +72,9 @@ def valid_model(valid_dl, model, criterion):
         actuals.append(actual)
         acc = accuracy_score(vstack(predictions), vstack(actuals))
         # round to class values
-        # yhat = yhat.reshape((len(yhat), 1))
         valid_loss.append(loss.item())
         valid_acc.append(acc)
 
-    # f1 = f1_score(actuals, predictions)
     f1_metric = f1_score(vstack(actuals), vstack(predictions), average = "macro")
     print('F1 score:' , f1_metric)
     return np.mean(valid_loss), np.mean(valid_acc)
@@ -95,22 +92,15 @@ def get_dataloaders(df, batch_size, valid_culture=None):
     dataset = TensorDataset(X_tensor, Y_tensor)
 
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
-    # valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
-    # test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
     return dataloader
 
 
-# net = ContemptNet()
-# if torch.cuda.is_available():
-#     net.cuda()
-# print(net)
 batch_size = 32
 epochs = 100
 
 
 data_path = './processed_data_csv/all_videos.csv'
 df = pd.read_csv(data_path)
-## TODO: before doing this part, remember to pick the 'test' sections
 kfold = KFold(5, True, 1)
 videos = df['filename'].unique()
 test_videos = pd.Series(videos).sample(frac=0.10)
@@ -126,8 +116,7 @@ for (i, (train, test)) in enumerate(splits):
     print('%d-th split: train: %d, test: %d' % (i+1, len(videos[train]), len(videos[test])))
     train_df = df[df['filename'].isin(videos[train])]
     valid_df = df[df['filename'].isin(videos[test])]
-    # print('train length:', len(train_df))
-    # print('valid length:', len(valid_df))
+
     train_dataloader = get_dataloaders(df, batch_size)
     valid_dataloader = get_dataloaders(valid_df, batch_size)
     net = ContemptNet()
@@ -154,24 +143,16 @@ for (i, (train, test)) in enumerate(splits):
     ## Plot the curves
     plt.plot(train_losses, label='training loss')
     plt.plot(valid_losses, label='validation loss')
-    # plt.legend(loc="lower right")
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.show()
 
     ## Testing
     Yhat = list()
-    # Y = le.fit_transform(test_df['emotion'].values)
-
     for row in test_df_copy.values:
         p = predict(row, net)
-        # p = p.reshape((len(p), 1))
         Yhat.append(p)
 
     # test_df['integer_emotion'] = Y
     test_df['predicted'] = le.inverse_transform(Yhat)
-    # print('Len test_df: ', len(test_df))
-    # print('Len Y:', len(Y))
-    # print(test_df.sample(25))
+   
     print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
-    # actual = actual.reshape((len(actual), 1))
-    # yhat = yhat.reshape((len(yhat), 1))

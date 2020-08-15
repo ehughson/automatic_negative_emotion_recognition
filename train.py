@@ -92,33 +92,8 @@ def get_dataloaders(df, batch_size, valid_culture=None):
     X_tensor = torch.tensor(X.values, dtype=torch.float32)
     
     dataset = TensorDataset(X_tensor, Y_tensor)
-    # lengths = [int(len(dataset)*0.7), len(dataset) - int(len(dataset)*0.7)]
-    # train, valid = random_split(dataset, lengths)
-    ### For cultural splitting
-    # else:
-
-    #     valid_df = df[df['culture'] == valid_culture]
-    #     train_df = df[df['culture'] != valid_culture]
-
-    #     train_labels = train_df[['emotion']].values
-    #     valid_labels = valid_df[['emotion']].values
-    #     train_labels = le.fit_transform(train_labels)
-    #     valid_labels = le.fit_transform(valid_labels)
-
-    #     valid_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
-    #     train_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
-
-    #     Y_tensor_train = torch.tensor(train_labels, dtype=torch.long)
-    #     Y_tensor_valid = torch.tensor(valid_labels, dtype=torch.long)
-
-    #     X_tensor_train = torch.tensor(train_df.values, dtype=torch.float32)
-    #     X_tensor_valid = torch.tensor(valid_df.values, dtype=torch.float32)
-    #     train = TensorDataset(X_tensor_train, Y_tensor_train)
-    #     valid = TensorDataset(X_tensor_valid, Y_tensor_valid)
 
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
-    # valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
-    # test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
     return dataloader
 
 
@@ -182,5 +157,3 @@ print('Len test_df: ', len(test_df))
 # print('Len Y:', len(Y))
 print(test_df.sample(25))
 print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
-# actual = actual.reshape((len(actual), 1))
-# yhat = yhat.reshape((len(yhat), 1))
