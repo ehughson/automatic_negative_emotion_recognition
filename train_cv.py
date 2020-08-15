@@ -11,7 +11,7 @@ from network import ContemptNet
 from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 
-# https://www.kaggle.com/super13579/pytorch-nn-cyclelr-k-fold-0-897-lightgbm-0-899#Pytorch-to-implement-simple-feed-forward-NN-model-(0.89+)
+
 le = LabelEncoder()
 def train_model(train_dl, model, criterion, optimizer):
     training_loss = []
@@ -111,6 +111,9 @@ videos = np.array(list(set(videos) - set(test_videos)))
 test_df = df[df['filename'].isin(test_videos)]
 df = df[~df['filename'].isin(list(test_videos))]
 splits = kfold.split(videos)
+kfold_valid_acc = []
+kfold_test_acc = []
+
 test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
 for (i, (train, test)) in enumerate(splits):
     print('%d-th split: train: %d, test: %d' % (i+1, len(videos[train]), len(videos[test])))
@@ -127,6 +130,7 @@ for (i, (train, test)) in enumerate(splits):
     criterion = nn.CrossEntropyLoss()
     train_losses = []
     valid_losses = []
+    valid_acc = []
     for epoch in range(epochs):
         print('Epoch {}/{}'.format(epoch, epochs - 1))
         print('-' * 10)
@@ -140,9 +144,12 @@ for (i, (train, test)) in enumerate(splits):
                     (epoch + 1, epoch_valid_loss ))
         print('[%d] Validation accuracy: %.3f' %
                     (epoch + 1, epoch_valid_acc ))
+        valid_acc.append(epoch_valid_acc)
+    kfold_valid_acc.append(valid_acc[-1])
     ## Plot the curves
     plt.plot(train_losses, label='training loss')
     plt.plot(valid_losses, label='validation loss')
+
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.show()
 
@@ -154,5 +161,11 @@ for (i, (train, test)) in enumerate(splits):
 
     # test_df['integer_emotion'] = Y
     test_df['predicted'] = le.inverse_transform(Yhat)
-   
-    print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
+    test_acc = accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)
+    test_f1 = f1_score(le.fit_transform(test_df['emotion'].values), Yhat)
+    kfold_test_acc.append(test_acc)
+    print('Test accuracy: %.3f' % (test_acc))
+    print('Test F1-Score: %.3f' % (test_f1))
+
+print('Average Test Accuracy on 5-Fold CV: %.3f' % (np.mean(kfold_test_acc)))
+print('Average Validation Accuracy on 5-Fold CV: %.3f' % (np.mean(kfold_valid_acc)))
