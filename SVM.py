@@ -30,7 +30,7 @@ def create_svm(X_train, X_valid, y_train, y_valid):
 
 	clf = clf.fit(X_train, y_train)
 	print(clf.score(X_train, y_train))
-	print(clf.score(X_valid, y_valid))
+	#print(clf.score(X_valid, y_valid))
 	predictions = clf.predict(X_valid)
 	print(classification_report(y_valid, predictions))
 	print(accuracy_score(y_valid, predictions))
@@ -109,7 +109,7 @@ def main():
 	df = pd.read_csv("all_videos.csv")
 	
 
-	'''
+	
 	############# initial process on random sampling ####################
 	#print(df.head())
 	df['culture_code'] = df['culture'].astype('category').cat.codes
@@ -123,7 +123,7 @@ def main():
 
 	############# testing model by separating training on 2 cultures and test on 1 culture####################
 	separate_emotions(df)
-	'''
+	
 
 	############# testing model by selecting specific videos to test so components of video are not in training set ###############
 	validation_array = []
@@ -169,5 +169,6 @@ if __name__=='__main__':
 	#train_data = sys.argv[1]
 	#test_data = sys.argv[2]
 	main()
+
 
 
