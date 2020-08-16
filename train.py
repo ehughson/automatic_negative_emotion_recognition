@@ -50,6 +50,7 @@ def valid_model(valid_dl, model):
     valid_acc = []
     predictions, actuals = list(), list()
     model.eval()
+    avg_loss = 0.0
     for i, data in enumerate(valid_dl):
         inputs, targets = data
         inputs = inputs.cuda()
@@ -74,11 +75,11 @@ def valid_model(valid_dl, model):
         # yhat = yhat.reshape((len(yhat), 1))
         valid_loss.append(loss.item())
         valid_acc.append(acc)
-
+        avg_loss += loss.item()/len(valid_dl)
     # f1 = f1_score(actuals, predictions)
     f1_metric = f1_score(vstack(actuals), vstack(predictions), average = "macro")
     print('F1 score:' , f1_metric)
-    return np.mean(valid_loss), np.mean(valid_acc)
+    return avg_loss, np.mean(valid_acc)
 
 def get_dataloaders(df, batch_size, valid_culture=None):
         
@@ -91,33 +92,8 @@ def get_dataloaders(df, batch_size, valid_culture=None):
     X_tensor = torch.tensor(X.values, dtype=torch.float32)
     
     dataset = TensorDataset(X_tensor, Y_tensor)
-    # lengths = [int(len(dataset)*0.7), len(dataset) - int(len(dataset)*0.7)]
-    # train, valid = random_split(dataset, lengths)
-    ### For cultural splitting
-    # else:
-
-    #     valid_df = df[df['culture'] == valid_culture]
-    #     train_df = df[df['culture'] != valid_culture]
-
-    #     train_labels = train_df[['emotion']].values
-    #     valid_labels = valid_df[['emotion']].values
-    #     train_labels = le.fit_transform(train_labels)
-    #     valid_labels = le.fit_transform(valid_labels)
-
-    #     valid_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
-    #     train_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1, inplace=True)
-
-    #     Y_tensor_train = torch.tensor(train_labels, dtype=torch.long)
-    #     Y_tensor_valid = torch.tensor(valid_labels, dtype=torch.long)
-
-    #     X_tensor_train = torch.tensor(train_df.values, dtype=torch.float32)
-    #     X_tensor_valid = torch.tensor(valid_df.values, dtype=torch.float32)
-    #     train = TensorDataset(X_tensor_train, Y_tensor_train)
-    #     valid = TensorDataset(X_tensor_valid, Y_tensor_valid)
 
     dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
-    # valid_dataloader = DataLoader(valid, shuffle=False, batch_size=batch_size)
-    # test_dataloader = DataLoader(test,  shuffle=False, batch_size=batch_size)
     return dataloader
 
 
@@ -127,15 +103,15 @@ if torch.cuda.is_available():
 # print(net)
 batch_size = 32
 epochs = 100
-# ASGD worked ok. (layers = 1, units=32, F1=0.45, acc=0.51)
-# optimizer = optim.ASGD(net.parameters(), lr=0.005)
-optimizer = optim.SGD(net.parameters(), lr=0.005)
+# optimizer = optim.ASGD(net.parameters(), lr=0.01)
+optimizer = optim.Adam(net.parameters(), lr=0.005, weight_decay=1e-5)
+# optimizer = optim.SGD(net.parameters(), lr=0.005)
 criterion = nn.CrossEntropyLoss()
 
 data_path = './processed_data_csv/all_videos.csv'
 df = pd.read_csv(data_path)
-valid_files = pd.Series(df['filename'].unique()).sample(frac=0.3)
-test_files = pd.Series(valid_files).sample(frac=0.15)
+valid_files = pd.Series(df['filename'].unique()).sample(frac=0.3, random_state=200)
+test_files = pd.Series(valid_files).sample(frac=0.15, random_state=200)
 test_df = df[df['filename'].isin(test_files)]
 valid_df = df[df['filename'].isin(valid_files)]
 # test_df=df.sample(n=300,random_state=200)
@@ -181,5 +157,3 @@ print('Len test_df: ', len(test_df))
 # print('Len Y:', len(Y))
 print(test_df.sample(25))
 print('Test accuracy: %.3f' % (accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)))
-# actual = actual.reshape((len(actual), 1))
-# yhat = yhat.reshape((len(yhat), 1))
