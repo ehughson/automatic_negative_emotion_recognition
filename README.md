@@ -39,3 +39,6 @@ At the end of the execution, test and validation accuracy is printed.
 
  
 ### Other Files
+
+### Evaluation
+Everything that was mentioned in the proposal was completed. All the dataset was curated manually by each team member. However, we did not rely on outside datasets which we hope we could do in the future as it would provide more validation. Other than that there were no changes or deviations from the original plan. 
