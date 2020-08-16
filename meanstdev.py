@@ -7,7 +7,7 @@ import statistics as st
 
 
 
-
+#Read in the dataset csv file
 df = pd.read_csv("all_videos.csv")
 
 persianContemptAU = dict()
@@ -186,7 +186,7 @@ philDisgustAU['AU45_r'] = list()
 
 
 
-
+#For each culture and emotion, consider every AU available in the dataset
 for index, row in df.iterrows():
     if row['culture'] == 'Persian' and row['emotion'] == 'contempt':
         persianContemptAU['AU01_r'].append(row['AU01_r'])
@@ -345,10 +345,8 @@ for index, row in df.iterrows():
         philDisgustAU['AU45_r'].append(row['AU45_r'])
 
 
-#for key in persianContemptAU:
-#    print(key + ": " + str(st.stdev(persianContemptAU[key])))
 
-
+#Create a dataframe depicting the mean average relative AU values associated with each culture for the contempt emotion 
 meanContemptData = {'Persian': {'AU01_r': st.mean(persianContemptAU['AU01_r']), 'AU02_r': st.mean(persianContemptAU['AU02_r']),
                        'AU04_r': st.mean(persianContemptAU['AU04_r']), 'AU05_r': st.mean(persianContemptAU['AU05_r']),
                        'AU06_r': st.mean(persianContemptAU['AU06_r']), 'AU07_r': st.mean(persianContemptAU['AU07_r']),
@@ -376,34 +374,8 @@ meanContemptData = {'Persian': {'AU01_r': st.mean(persianContemptAU['AU01_r']), 
                        'AU23_r': st.mean(philContemptAU['AU23_r']), 'AU25_r': st.mean(philContemptAU['AU25_r']),
                        'AU26_r': st.mean(philContemptAU['AU26_r']), 'AU45_r': st.mean(philContemptAU['AU45_r'])}}
 
-'''
-meanContemptData = {'Persian': {st.mean(persianContemptAU['AU01_r']): 'AU01_r', st.mean(persianContemptAU['AU02_r']): 'AU02_r',
-                       st.mean(persianContemptAU['AU04_r']): 'AU04_r', st.mean(persianContemptAU['AU05_r']): 'AU05_r',
-                       st.mean(persianContemptAU['AU06_r']): 'AU06_r', st.mean(persianContemptAU['AU07_r']): 'AU07_r',
-                       st.mean(persianContemptAU['AU09_r']): 'AU09_r', st.mean(persianContemptAU['AU10_r']): 'AU10_r',
-                       st.mean(persianContemptAU['AU12_r']): 'AU12_r', st.mean(persianContemptAU['AU14_r']): 'AU14_r',
-                       st.mean(persianContemptAU['AU15_r']): 'AU15_r', st.mean(persianContemptAU['AU17_r']): 'AU17_r',
-                       st.mean(persianContemptAU['AU23_r']): 'AU23_r', st.mean(persianContemptAU['AU25_r']): 'AU25_r',
-                       st.mean(persianContemptAU['AU26_r']): 'AU26_r', st.mean(persianContemptAU['AU45_r']): 'AU45_r'},
-            
-           'North America': {st.mean(naContemptAU['AU01_r']): 'AU01_r', st.mean(naContemptAU['AU02_r']): 'AU02_r',
-                       st.mean(naContemptAU['AU04_r']): 'AU04_r', st.mean(naContemptAU['AU05_r']): 'AU05_r',
-                       st.mean(naContemptAU['AU06_r']): 'AU06_r', st.mean(naContemptAU['AU07_r']): 'AU07_r',
-                       st.mean(naContemptAU['AU09_r']): 'AU09_r', st.mean(naContemptAU['AU10_r']): 'AU10_r',
-                       st.mean(naContemptAU['AU12_r']): 'AU12_r', st.mean(naContemptAU['AU14_r']): 'AU14_r',
-                       st.mean(naContemptAU['AU15_r']): 'AU15_r', st.mean(naContemptAU['AU17_r']): 'AU17_r',
-                       st.mean(naContemptAU['AU23_r']): 'AU23_r', st.mean(naContemptAU['AU25_r']): 'AU25_r',
-                       st.mean(naContemptAU['AU26_r']): 'AU26_r', st.mean(naContemptAU['AU45_r']): 'AU45_r'},
-            
-           'Philippines': {st.mean(philContemptAU['AU01_r']): 'AU01_r', st.mean(philContemptAU['AU02_r']): 'AU02_r',
-                       st.mean(philContemptAU['AU04_r']): 'AU04_r', st.mean(philContemptAU['AU05_r']): 'AU05_r',
-                       st.mean(philContemptAU['AU06_r']): 'AU06_r', st.mean(philContemptAU['AU07_r']): 'AU07_r',
-                       st.mean(philContemptAU['AU09_r']): 'AU09_r', st.mean(philContemptAU['AU10_r']): 'AU10_r',
-                       st.mean(philContemptAU['AU12_r']): 'AU12_r', st.mean(philContemptAU['AU14_r']): 'AU14_r',
-                       st.mean(philContemptAU['AU15_r']): 'AU15_r', st.mean(philContemptAU['AU17_r']): 'AU17_r',
-                       st.mean(philContemptAU['AU23_r']): 'AU23_r', st.mean(philContemptAU['AU25_r']): 'AU25_r',
-                       st.mean(philContemptAU['AU26_r']): 'AU26_r', st.mean(philContemptAU['AU45_r']): 'AU45_r'}}
-'''
+
+#Plot the dataframe as a bar graph depicting values for each AU for each culture
 print("Mean values for each AU for each culture with emotions labelled as contempt\n")
 df_mean_contempt = pd.DataFrame(meanContemptData)
 
@@ -414,7 +386,6 @@ ax.set_xlabel("AU", fontsize = 20)
 ax.set_ylabel("Mean Value", fontsize = 20)
 plt.title('Contempt: Mean Value of Each AU from Each Culture ', fontsize = 22)
 plt.show()
-
 
 
 meanAngerData = {'Persian': {'AU01_r': st.mean(persianAngerAU['AU01_r']), 'AU02_r': st.mean(persianAngerAU['AU02_r']),
