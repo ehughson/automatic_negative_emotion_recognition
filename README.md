@@ -32,13 +32,11 @@ At the end of the execution, test and validation accuracy is printed.
 4. Run the cell containing the code
 
 ### Running Image Classification
-1. To run the code, please ensure all_videos.csv and the images dataset. Images are available in https://drive.google.com/file/d/1qjyVVSK2Y-oo06_gW8dj_3VQbogF3T63/view?usp=sharing  because it is 750mb big. They should be present in the same directory as image_classification.ipynb
+1. To run the code, please ensure all_videos.csv and the images dataset. Images zip file is available in https://drive.google.com/file/d/1qjyVVSK2Y-oo06_gW8dj_3VQbogF3T63/view?usp=sharing  because it is 750mb big. They should be present in the same directory as image_classification.ipynb
 2. Open the notebook image_classification.ipynb in Jupyter Notebook
 3. Ensure sklearn, re, os, pandas, glob and IPython.display are installed in Jupyter Notebook.
 4. Run the cell containing the code
 
  
-### Other Files
-
 ### Evaluation
 Everything that was mentioned in the proposal was completed. All the dataset was curated manually by each team member. However, we did not rely on outside datasets which we hope we could do in the future as it would provide more validation. Other than that there were no changes or deviations from the original plan. 
