@@ -14,4 +14,24 @@ At the end of the execution, test and validation accuracy is printed.
 
 ### Running SVM
 
+
+### Running Emotion Count
+1. To run the code, please ensure all_videos.csv is present in the same directory as emotion_count.ipynb
+2. Open the notebook emotion_count.ipynb in Jupyter Notebook
+3. Ensure pandas is installed in Jupyter notebook 
+4. Run the cell containing the code
+
+### Running meanstdev
+1. To run the code, please ensure all_videos.csv is present in the same directory as meanstdev.ipynb
+2. Open the notebook meanstdev.ipynb in Jupyter Notebook
+3. Ensure the pandas and statistics python modules are install in Jupyter Notebook
+4. Run the cell containing the code
+
+### Running Image Classification
+1. To run the code, please ensure all_videos.csv and the images dataset (images is provided as a seperate folder because it is 750mb big) is present in the same directory as image_classification.ipynb
+2. Open the notebook image_classification.ipynb in Jupyter Notebook
+3. Ensure sklearn, re, os, pandas, glob and IPython.display are installed in Jupyter Notebook.
+4. Run the cell containing the code
+
+ 
 ### Other Files
