@@ -5,6 +5,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
+#Read in the dataset csv file
 df = pd.read_csv("all_videos.csv")
 
 previousFilename = None
@@ -23,17 +25,16 @@ naContemptVideoCount = 0
 naDisgustVideoCount = 0
 
 
-
+#Loop through the dataset csv file and count the number of datapoints (videos) there are for each culture for each emotion
 for index, row in df.iterrows():  
     if index == 0:
         previousFilename = row['filename']
         
     if previousFilename != row['filename']:
-        #print("Previous filename: " + previousFilename)
+
         previousFilename = row['filename']
         totalVideoCount += 1
-        #print("Index: " + str(index))  
-        #print("Filename: " +row['filename'])
+   
         
         if row['culture'] == 'Persian' and row['emotion'] == 'contempt':
             persianContemptVideoCount += 1
@@ -57,9 +58,6 @@ for index, row in df.iterrows():
             philippinesDisgustVideoCount += 1
             
         
-    
-    
-#print(persianDisgustVideoCount)
 print("Total video count: " + str(totalVideoCount))
         
 data = {'Persian': {'anger': persianAngerVideoCount, 'contempt': persianContemptVideoCount, 'disgust': persianDisgustVideoCount},
@@ -69,11 +67,11 @@ data = {'Persian': {'anger': persianAngerVideoCount, 'contempt': persianContempt
 df = pd.DataFrame(data)
 print(df)
 
+#Plot a bar graph depicting the number of datapoints in the dataset for each culture 
 ax = df.plot(kind='bar', figsize =(13,13), rot = 0)
 ax.set_xlabel("Emotion", fontsize = 20)
 ax.set_ylabel("Emotion Count", fontsize = 20)
 plt.title('Number of Each Emotion from Each Culture', fontsize = 22)
 plt.show()
 
-#plt.figure(figsize=(10,10))
 

@@ -35,6 +35,9 @@ AU_TO_DESCRIPTION = {
     'AU45' : 'Blink'
 }
 
+
+#Generate pandas dataframes for each culture based on the entire dataset
+
 df = pd.read_csv("all_videos.csv")
 
 
@@ -53,6 +56,7 @@ au_df_na = au_df_na.drop('emotion', 1)
 au_df_na = au_df_na.drop('filename', 1)
 
 
+#Create a GMM for each culture
 gmm_na = GMM(16).fit(au_df_na)
 
 probabilities_na = gmm_na.predict_proba(au_df_na)
@@ -103,30 +107,25 @@ num_components = len(au_df_na.columns)
 
 
 print("North America: \n")
+
+#Predict images that best correspond with each AU for the North American culture.
 for i in range(0, num_components):
+
+    #Compute the frames the have the highest probabilities for each AU by taking the argmax of the column
     greatest_prob_index = prob_df_na[i].argmax()
     AU_column = i
     AU_number = au_df_na.columns[i]
     
     AU_name = au_df_na.columns[i]
     
-    #print('AU Name: ' + AU_name, 'Index of greatest probability: ', greatest_prob_index)
     row = df_na.iloc[greatest_prob_index, :]
-    #print(row)
     
     video_file_name = row['filename']
     video_culture = row['culture']
     video_emotion = row['emotion']
     video_frame = row['frame']
     
-    #print(video_file_name)
-    #print(video_culture)
-    #print(video_emotion)
-    #print(video_frame)
-    
-    
-
-    
+    #Go through the dataset and display the image with the highest probability of representing the AU for the contempt emotion for the North American culture
     if video_emotion == 'contempt' and video_culture == "North America":
         
         for image_file_path in contempt_images:
@@ -140,59 +139,45 @@ for i in range(0, num_components):
                 #print(image_file_path)
                 display(Image(filename="images/contempt\contempt_7_na (71).jpg"))
                 break
-               
-            
+
             #na culture
             if "contempt" in image_file_name_tokens and "na " in image_file_name_tokens and video_file_name_tokens[0] == image_file_name_tokens[0] and video_file_name_tokens[1] == image_file_name_tokens[1] and image_file_name_tokens[3] == str(video_frame):
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
-                    
 
                 print('AU: ' + AU_number + "Emotion: Contempt")
                 display(Image(filename=image_file_path))
            
-                
-                
+    #Go through the dataset and display the image with the highest probability of representing the AU for the disgust emotion
     elif video_emotion == 'disgust' and video_culture == "North America":
         for image_file_path in disgust_images:
             image_file_name = os.path.basename(image_file_path)
             image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
+     
             
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             #na culture
             if "disgust" in image_file_name_tokens and "na " in image_file_name_tokens and video_file_name_tokens[0] == image_file_name_tokens[0] and video_file_name_tokens[1] == image_file_name_tokens[1] and image_file_name_tokens[3] == str(video_frame):
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
-
+ 
                 print('AU: ' + AU_number + " Emotion: Disgust")
                 display(Image(filename=image_file_path))
-                #print(image_file_name)
-                
+           
+    #Go through the dataset and display the image with the highest probability of representing the AU for the anger emotion           
     elif video_emotion == 'anger' and video_culture == "North America":
         for image_file_path in anger_images:
             image_file_name = os.path.basename(image_file_path)
             image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
+ 
             
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             #na culture
             if "anger" in image_file_name_tokens and "na " in image_file_name_tokens and video_file_name_tokens[0] == image_file_name_tokens[0] and video_file_name_tokens[1] == image_file_name_tokens[1] and image_file_name_tokens[3] == str(video_frame):
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
 
                 print('AU: ' + AU_number + " Emotion: Anger")
                 display(Image(filename=image_file_path))
-                #print(image_file_name)
+        
                 
                 
 print("Persia: \n")
+#Predict images that best correspond with each AU for the Persian culture.
 for i in range(0, num_components):
     greatest_prob_index = prob_df_pr[i].argmax()
     AU_column = i
@@ -200,23 +185,16 @@ for i in range(0, num_components):
     
     AU_name = au_df_pr.columns[i]
     
-    #print('AU Name: ' + AU_name, 'Index of greatest probability: ', greatest_prob_index)
+
     row = df_pr.iloc[greatest_prob_index, :]
-    #print(row)
+ 
     
     video_file_name = row['filename']
     video_culture = row['culture']
     video_emotion = row['emotion']
     video_frame = row['frame']
-    
-    #print(video_file_name)
-    #print(video_culture)
-    #print(video_emotion)
-    #print(video_frame)
-    
-    
 
-    
+    #Go through the dataset and display the image with the highest probability of representing the AU for the contempt emotion for the Persian culture
     if video_emotion == 'contempt' and video_culture == "Persian":
         
         for image_file_path in contempt_images:
@@ -224,9 +202,6 @@ for i in range(0, num_components):
             image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
             
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
-            
-            #print(image_file_name_tokens)
-            #print(video_file_name_tokens)
          
             if "contempt" not in image_file_name_tokens:
                 
@@ -236,22 +211,16 @@ for i in range(0, num_components):
             
             #pr culture
             if "contempt" not in image_file_name_tokens and "pr" in image_file_name_tokens and image_file_name_tokens[-2] == str(video_frame) and video_file_name_tokens[0] == image_file_name_tokens[0]:
-         
-
-                    
-                    
-
+ 
                 print('AU: ' + AU_number + "Emotion: Contempt")
                 display(Image(filename=image_file_path))
            
                 
-                
+    #Go through the dataset and display the image with the highest probability of representing the AU for the disgust emotion for the North American culture
     elif video_emotion == 'disgust' and video_culture == "Persian":
         for image_file_path in disgust_images:
             image_file_name = os.path.basename(image_file_path)
-            image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
-            
+            image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name) 
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             
             
@@ -261,75 +230,61 @@ for i in range(0, num_components):
             
             #pr culture
             if "disgust" not in image_file_name_tokens and "pr" in image_file_name_tokens and image_file_name_tokens[-2] == str(video_frame) and video_file_name_tokens[0] == image_file_name_tokens[0]:
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
-
+         
                 print('AU: ' + AU_number + " Emotion: Disgust")
                 display(Image(filename=image_file_path))
-                #print(image_file_name)
-                
+
+    #Go through the dataset and display the image with the highest probability of representing the AU for the anger emotion for the North American culture
     elif video_emotion == 'anger' and video_culture == "Persian":
         for image_file_path in anger_images:
             image_file_name = os.path.basename(image_file_path)
             image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
-            
+
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             
             if(video_file_name == "19_1"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+     
                 display(Image(filename="images/anger/19_1_pr_033.jpg"))
                 break
             elif(video_file_name == "46_1"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+               
                 display(Image(filename="images/anger/46_1_pr_011.jpg"))
                 break
             elif(video_file_name == "8"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+             
                 display(Image(filename="images/anger/8_pr_016.jpg"))
                 break
             elif(video_file_name == "24"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+              
                 display(Image(filename="images/anger/24_pr_025.jpg"))
                 break
             elif(video_file_name == "52"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+                
                 display(Image(filename="images/anger/52_pr_073.jpg"))
                 break
             elif(video_file_name == "59"):
                 print('AU: ' + AU_number)
-                #print(image_file_path)
+                
                 display(Image(filename="images/anger/59_pr_078.jpg"))
                 break
-                
-            
-            
+
+
             if "anger" not in image_file_name_tokens:
                 
                 image_file_name_tokens[-2] = str(int(image_file_name_tokens[-2]))
             
             #pr culture
             if "anger" in image_file_name_tokens and "pr" in image_file_name_tokens and image_file_name_tokens[-2] == str(video_frame) and video_file_name_tokens[0] == image_file_name_tokens[0]:
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
+ 
 
                 print('AU: ' + AU_number + " Emotion: Anger")
                 display(Image(filename=image_file_path))
-                #print(image_file_name)
-    
-    
-    
-    
-    
+
 
 print("Philippines: \n")
 for i in range(0, num_components):
@@ -340,22 +295,17 @@ for i in range(0, num_components):
     
     AU_name = au_df_ph.columns[i]
     
-    #print('AU Name: ' + AU_name, 'Index of greatest probability: ', greatest_prob_index)
+
     row = df_ph.iloc[greatest_prob_index, :]
-    #print(row)
+
     
     video_file_name = row['filename']
     video_culture = row['culture']
     video_emotion = row['emotion']
     video_frame = row['frame']
     
-    #print(video_file_name)
-    #print(video_culture)
-    #print(video_emotion)
-    #print(video_frame)
 
-
-    
+    #Go through the dataset and display the image with the highest probability of representing the AU for the contempt emotion for the Filipino culture
     if video_emotion == 'contempt' and video_culture == "Philippines":
         
         for image_file_path in contempt_images:
@@ -365,10 +315,9 @@ for i in range(0, num_components):
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             
             if len(image_file_name_tokens) == 5 and "contempt" in image_file_name_tokens:
-                #print(image_file_name_tokens)
-                #print(video_file_name_tokens)
+  
                 image_file_name_tokens[-3] = str(int(image_file_name_tokens[-3]))
-            #print(video_file_name_tokens)
+
             #ph culture
             if "contempt" in image_file_name_tokens and image_file_name_tokens[-2] == "pr" and video_file_name_tokens[1] == image_file_name_tokens[1]:
     
@@ -378,56 +327,44 @@ for i in range(0, num_components):
                 break
            
                 
-                
+    #Go through the dataset and display the image with the highest probability of representing the AU for the disgust emotion for the Filipino culture  
     elif video_emotion == 'disgust' and video_culture == "Philippines":
         for image_file_path in disgust_images:
             image_file_name = os.path.basename(image_file_path)
             image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
+          
             
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             
             if len(image_file_name_tokens) == 5 and "disgust" in image_file_name_tokens:
-                #print(image_file_name_tokens)
-                #print(video_file_name_tokens)
+        
                 image_file_name_tokens[-3] = str(int(image_file_name_tokens[-3]))
                 
             #na culture
             if "disgust" in image_file_name_tokens and image_file_name_tokens[-2] == "pr"  and video_file_name_tokens[1] == image_file_name_tokens[1]:
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
 
                 print('AU: ' + AU_number + " Emotion: Disgust")
                 display(Image(filename=image_file_path))
                 break
-                #print(image_file_name)
-                
+    
+    #Go through the dataset and display the image with the highest probability of representing the AU for the anger emotion for the Filipino culture  
     elif video_emotion == 'anger' and video_culture == "Philippines":
         for image_file_path in anger_images:
             image_file_name = os.path.basename(image_file_path)
-            image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)
-            #print(image_file_name_tokens)
-            
+            image_file_name_tokens = re.split(r'_|\.|\(|\)', image_file_name)       
             video_file_name_tokens = re.split(r'_|\.|\(|\)', video_file_name)
             
             if len(image_file_name_tokens) == 5 and "anger" in image_file_name_tokens:
-                #print(image_file_name_tokens)
-                #print(video_file_name_tokens)
+      
                 image_file_name_tokens[-3] = str(int(image_file_name_tokens[-3]))
                 
             #na culture
             if "anger" in image_file_name_tokens and image_file_name_tokens[-2] == "pr"  and video_file_name_tokens[1] == image_file_name_tokens[1]:
-                #print(video_file_name)
-                #print(image_file_name)
-
-                    
+    
 
                 print('AU: ' + AU_number + " Emotion: Anger")
                 display(Image(filename=image_file_path))
                 break
-                #print(image_file_name)
-    
+ 
 
             
