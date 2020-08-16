@@ -10,7 +10,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics import recall_score
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn import svm
@@ -34,7 +34,9 @@ def create_svm(X_train, X_valid, y_train, y_valid):
 	predictions = clf.predict(X_valid)
 	print(classification_report(y_valid, predictions))
 	print(accuracy_score(y_valid, predictions))
-	return clf
+	score = accuracy_score(y_valid, predictions)
+	fscore = f1_score(y_valid, predictions, average=None)
+	return clf, score, fscore
 
 
 def separate_emotions(X):
@@ -98,6 +100,7 @@ def separate_emotions(X):
 	print(len(int_predict))
 	predictions = clf.predict(int_test)
 	print(accuracy_score(int_predict, predictions))
+	print(classification_report(int_predict, predictions))
 	print('\n')
 
 
@@ -107,26 +110,50 @@ def main():
 	
 	columns = ['AU01_r', 'AU02_r', 'AU04_r', 'AU05_r', 'AU06_r', 'AU07_r', 'AU09_r', 'AU10_r', 'AU12_r', 'AU14_r', 'AU15_r', 'AU17_r', 'AU23_r', 'AU25_r', 'AU26_r', 'AU45_r','culture','emotion']
 	df = pd.read_csv("all_videos.csv")
-	
+	df['culture_code'] = df['culture'].astype('category').cat.codes
 
-	
+	''''
 	############# initial process on random sampling ####################
 	#print(df.head())
-	df['culture_code'] = df['culture'].astype('category').cat.codes
+	videos = df['filename'].unique()
+	test_videos = pd.Series(videos).sample(frac=0.10)
+	# print(test_videos)
+	# videos must be array to be subscriptable by a list
+	videos = np.array(list(set(videos) - set(test_videos)))
+	# Removing test videos from train dataset
+	test_df = df[df['filename'].isin(test_videos)]
+	df = df[~df['filename'].isin(list(test_videos))]
+
+	# test_df=df.sample(n=300,random_state=200)
+	#df2 = df[~df['filename'].isin(valid_files)]
+	#df2 = df[~df['filename'].isin(test_files)]
 	y = df['emotion'].values
 	X = df.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
 	#print(X[:10])
 
 	X_train, X_valid, y_train, y_valid = train_test_split(X, y)
-	clf = create_svm(X_train, X_valid, y_train, y_valid)
-	
+	clf, score, fscore = create_svm(X_train, X_valid, y_train, y_valid)
+
+	int_test = test_df.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
+	print(len(int_test))
+	int_predict = test_df['emotion'].values
+	print(len(int_predict))
+	predictions = clf.predict(int_test)
+	print(accuracy_score(int_predict, predictions))	
+	print(classification_report(int_predict, predictions))
+
+	print('\n')
+	'''
 
 	############# testing model by separating training on 2 cultures and test on 1 culture####################
-	separate_emotions(df)
+	#separate_emotions(df)
 	
 
 	############# testing model by selecting specific videos to test so components of video are not in training set ###############
 	validation_array = []
+	test_array = []
+	vf_score = []
+	tf_score = []
 	kfold = KFold(5, True, 1)
 	videos = df['filename'].unique()
 	test_videos = pd.Series(videos).sample(frac=0.10)
@@ -148,7 +175,9 @@ def main():
 	    X_train, X_valid, y_train, y_valid = train_test_split(X, y)
 
 
-	    clf = create_svm(X_train, X_valid, y_train, y_valid)
+	    clf, score, fscore = create_svm(X_train, X_valid, y_train, y_valid)
+	    validation_array.append(score)
+	    vf_score.append(fscore)
 	    #cv_scores = cross_validate(clf, X, y, cv = 10)
 	    #print(cv_scores)
 
@@ -158,17 +187,23 @@ def main():
 	    print(len(int_predict))
 	    predictions = clf.predict(int_test)
 	    print(accuracy_score(int_predict, predictions))
+	    fscore = f1_score(int_predict, predictions, average = None)
 	    print('\n')
 
-	    validation_array.append(accuracy_score(int_predict, predictions))
+	    test_array.append(accuracy_score(int_predict, predictions))
+	    tf_score.append(fscore)
+
  
-	print("Average accuracy for all Folds on test dataset: " + str(np.mean(validation_array )))
+	print("Average accuracy for all Folds on valid dataset: " + str(np.mean(validation_array)))
+
+	print("Average accuracy for all Folds on test dataset: " + str(np.mean(test_array)))
+
+	print("Average f-score for all Folds on valid dataset: " + str(np.mean(vf_score)))
+
+	print("Average f-score for all Folds on test dataset: " + str(np.mean(tf_score)))
 
 
 if __name__=='__main__':
 	#train_data = sys.argv[1]
 	#test_data = sys.argv[2]
 	main()
-
-
-
