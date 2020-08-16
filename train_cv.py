@@ -79,11 +79,12 @@ def valid_model(valid_dl, model, criterion):
     print('F1 score:' , f1_metric)
     return np.mean(valid_loss), np.mean(valid_acc)
 
-def get_dataloaders(df, batch_size, valid_culture=None):
+def get_dataloaders(df, batch_size):
         
-    ### For random splitting
-    # if valid_culture is None:
+  
     Y = df[['emotion']].values
+
+        
     X = df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
     Y = le.fit_transform(Y)
     Y_tensor = torch.tensor(Y, dtype=torch.long)
@@ -102,9 +103,11 @@ epochs = 100
 data_path = './processed_data_csv/all_videos.csv'
 df = pd.read_csv(data_path)
 kfold = KFold(5, True, 1)
+
+# SPLITTING HELD-OUT DATA
 videos = df['filename'].unique()
 test_videos = pd.Series(videos).sample(frac=0.10)
-# print(test_videos)
+
 # videos must be array to be subscriptable by a list
 videos = np.array(list(set(videos) - set(test_videos)))
 # Removing test videos from train dataset
@@ -114,6 +117,7 @@ splits = kfold.split(videos)
 kfold_valid_acc = []
 kfold_test_acc = []
 
+# TRAINING
 test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
 for (i, (train, test)) in enumerate(splits):
     print('%d-th split: train: %d, test: %d' % (i+1, len(videos[train]), len(videos[test])))
@@ -161,8 +165,9 @@ for (i, (train, test)) in enumerate(splits):
 
     # test_df['integer_emotion'] = Y
     test_df['predicted'] = le.inverse_transform(Yhat)
+    print(test_df.sample(n=20))
     test_acc = accuracy_score(le.fit_transform(test_df['emotion'].values), Yhat)
-    test_f1 = f1_score(le.fit_transform(test_df['emotion'].values), Yhat)
+    test_f1 = f1_score(le.fit_transform(test_df['emotion'].values), Yhat, average='macro')
     kfold_test_acc.append(test_acc)
     print('Test accuracy: %.3f' % (test_acc))
     print('Test F1-Score: %.3f' % (test_f1))
