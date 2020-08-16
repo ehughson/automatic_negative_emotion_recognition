@@ -165,8 +165,10 @@ def main():
 	df = df[~df['filename'].isin(list(test_videos))]
 	splits = kfold.split(videos)
 	test_df_copy = test_df.drop(['frame', 'face_id', 'culture', 'filename', 'emotion', 'confidence','success'], axis=1)
+
 	for (i, (train, test)) in enumerate(splits):
 	    print('%d-th split: train: %d, test: %d' % (i+1, len(videos[train]), len(videos[test])))
+
 	    train_df = df[df['filename'].isin(videos[train])]
 	    test_df = df[df['filename'].isin(videos[test])]
 	    y = train_df['emotion'].values
@@ -180,14 +182,17 @@ def main():
 	    vf_score.append(fscore)
 	    #cv_scores = cross_validate(clf, X, y, cv = 10)
 	    #print(cv_scores)
+	    print(test_df[['frame','filename','culture','emotion']].head())
 
 	    int_test = test_df.drop(columns = ['success','confidence', 'face_id','frame','emotion', 'culture','filename']).values
 	    print(len(int_test))
 	    int_predict = test_df['emotion'].values
 	    print(len(int_predict))
 	    predictions = clf.predict(int_test)
+	    print(predictions[0:10])
 	    print(accuracy_score(int_predict, predictions))
 	    fscore = f1_score(int_predict, predictions, average = None)
+
 	    print('\n')
 
 	    test_array.append(accuracy_score(int_predict, predictions))
@@ -207,3 +212,4 @@ if __name__=='__main__':
 	#train_data = sys.argv[1]
 	#test_data = sys.argv[2]
 	main()
+
