@@ -9,6 +9,7 @@ First install the requirements.txt:
 ```pip install -r requirements.txt```
 
 ### Running DNN
+Make sure the all_videos.csv file is in the same directory as ```train_cv.py```
 ```python train_cv.py```  
 At the end of the execution, test and validation accuracy is printed.
 
@@ -16,7 +17,7 @@ At the end of the execution, test and validation accuracy is printed.
 1. To run the code, make sure the all_videos.csv file is in the same directory as SVM.py
 2. Open a terminal and navigate to the directory with SVM.py and all_videos.csv
 3. ensure sklearn, pandas, and numpy are installed
-4. Run the command "python3 SVM.py"
+4. Run the command ```python3 SVM.py```
 
 ### Running Emotion Count
 1. To run the code, please ensure all_videos.csv is present in the same directory as emotion_count.ipynb
