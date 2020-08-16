@@ -1,22 +1,3 @@
-from sklearn import svm
-import pandas as pd
-import numpy as np
-import sys
-from operator import itemgetter
-import sklearn
-from sklearn import tree
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import KFold
-import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, f1_score
-from sklearn.metrics import recall_score
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn import svm
-from sklearn.model_selection import cross_val_score, cross_validate
-
-
 def create_svm(X_train, X_valid, y_train, y_valid):
 	#scaler = StandardScaler().fit(X_train)
 	#X_scaled = scaler.transform(X_train)
@@ -112,7 +93,7 @@ def main():
 	df = pd.read_csv("all_videos.csv")
 	df['culture_code'] = df['culture'].astype('category').cat.codes
 
-	''''
+	
 	############# initial process on random sampling ####################
 	#print(df.head())
 	videos = df['filename'].unique()
@@ -143,10 +124,10 @@ def main():
 	print(classification_report(int_predict, predictions))
 
 	print('\n')
-	'''
+	
 
 	############# testing model by separating training on 2 cultures and test on 1 culture####################
-	#separate_emotions(df)
+	separate_emotions(df)
 	
 
 	############# testing model by selecting specific videos to test so components of video are not in training set ###############
@@ -212,4 +193,3 @@ if __name__=='__main__':
 	#train_data = sys.argv[1]
 	#test_data = sys.argv[2]
 	main()
-
