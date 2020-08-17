@@ -2,8 +2,11 @@
 In this project we examined different methods to classify anger, contempt and disgust.
 
 ## Self-evaluation of the Project with respect to the Proposal
+In general, we have done everything according to our proposal. In some parts like data acquisition, we surpassed what we said in the proposal and collected more data.
+The detail is as follows: 
+
 ### Dataset
-In our proposal, we planned to collect at least 200 videos, with roughly 70 videos for each culture (North American, Persian, Fillipino). We managed to collect 235 videos (75 for Persian, 87 for North American and 74 for Filipino). We have at least 22 videos for each emotion in each culture. 
+In our proposal, we planned to collect at least 200 videos, with roughly 70 videos for each culture (North American, Persian, Fillipino). We managed to collect 235 videos (75 for Persian, 87 for North American and 74 for Filipino). We have at least 22 videos for each emotion in each culture. Fortunately, we did not change anything.
 
 
 ### Approach
