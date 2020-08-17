@@ -110,7 +110,7 @@ def main():
 	
 	columns = ['AU01_r', 'AU02_r', 'AU04_r', 'AU05_r', 'AU06_r', 'AU07_r', 'AU09_r', 'AU10_r', 'AU12_r', 'AU14_r', 'AU15_r', 'AU17_r', 'AU23_r', 'AU25_r', 'AU26_r', 'AU45_r','culture','emotion']
 	df = pd.read_csv("all_videos.csv")
-	df['culture_code'] = df['culture'].astype('category').cat.codes
+	#df['culture_code'] = df['culture'].astype('category').cat.codes
 
 	
 	############# initial process on random sampling ####################
@@ -146,7 +146,7 @@ def main():
 	
 
 	############# testing model by separating training on 2 cultures and test on 1 culture####################
-	separate_emotions(df)
+	#separate_emotions(df)
 	
 
 	############# testing model by selecting specific videos to test so components of video are not in training set ###############
@@ -212,4 +212,5 @@ if __name__=='__main__':
 	#train_data = sys.argv[1]
 	#test_data = sys.argv[2]
 	main()
+
 
