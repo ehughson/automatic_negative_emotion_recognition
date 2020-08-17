@@ -1,7 +1,7 @@
 # Contempt Detection in Using Videos from Different Cultures
 In this project we examined different methods to classify anger, contempt and disgust.
 
-## Self-evaluation of the Project with respect to the Proposal. 
+## Self-evaluation of the Project with respect to the Proposal
 ### Dataset
 In our proposal, we planned to collect at least 200 videos, with roughly 70 videos for each culture (North American, Persian, Fillipino). We managed to collect 235 videos (75 for Persian, 87 for North American and 74 for Filipino). We have at least 22 videos for each emotion in each culture. 
 
