@@ -113,6 +113,7 @@ videos = np.array(list(set(videos) - set(test_videos)))
 # Removing test videos from train dataset
 test_df = df[df['filename'].isin(test_videos)]
 df = df[~df['filename'].isin(list(test_videos))]
+# df = df[df['culture'] != 'Persian']
 splits = kfold.split(videos)
 kfold_valid_acc = []
 kfold_test_acc = []
