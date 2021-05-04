@@ -1,4 +1,4 @@
-# Contempt Detection in Using Videos from Different Cultures
+# Negative Emotion Recognition Using Videos from Different Cultures
 In this project we examined different methods to classify anger, contempt and disgust.
 
 
