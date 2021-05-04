@@ -11,7 +11,7 @@ Make sure the all_videos.csv file is in the same directory as ```train_cv.py```
 ```python train_cv.py```  
 At the end of the execution, test and validation accuracy is printed.
 
-### Running SVM
+### Running SVM for Within/Cross Culture Experiments
 1. To run the code, make sure the videos_relabelled.csv file is in the same directory as SVM.py
 2. Open a terminal and navigate to the directory with within_culture_ex.py, cross_culture_ex.py and all_videos.csv
 3. ensure sklearn, pandas, and numpy are installed
